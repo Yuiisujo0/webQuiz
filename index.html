@@ -3,62 +3,109 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simple Math Game</title>
+  <title>Cool Math Quiz</title>
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      text-align: center;
-      padding-top: 50px;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
     }
 
     .game-box {
-      width: 350px;
-      background: white;
-      margin: auto;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 380px;
+      background: #ffffffdd;
+      backdrop-filter: blur(8px);
+      padding: 35px;
+      text-align: center;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      animation: fadeIn 0.7s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: 600;
+      color: #333;
+    }
+
+    #question {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 10px 0 25px;
     }
 
     input {
-      width: 100px;
-      padding: 10px;
+      width: 150px;
+      padding: 12px;
       font-size: 18px;
-      margin-top: 20px;
+      border-radius: 10px;
+      border: 2px solid #aaa;
+      text-align: center;
+      transition: 0.25s;
+    }
+
+    input:focus {
+      border-color: #6a11cb;
+      outline: none;
+      box-shadow: 0 0 10px #6a11cb66;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 12px 28px;
       font-size: 18px;
       margin-top: 20px;
-      cursor: pointer;
-      border-radius: 5px;
+      border-radius: 50px;
       border: none;
-      background: #007bff;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
       color: white;
+      font-weight: 600;
+      transition: 0.25s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.25);
     }
 
     .feedback {
       margin-top: 20px;
       font-size: 20px;
       font-weight: bold;
+      min-height: 28px;
+      transition: 0.3s ease;
     }
 
     .score {
       margin-top: 10px;
       font-size: 18px;
+      font-weight: 500;
     }
   </style>
 </head>
+
 <body>
 
   <div class="game-box">
-    <h2>Math Quiz Game</h2>
+    <h2>✨ Math Quiz Game ✨</h2>
 
     <p id="question">Loading...</p>
 
-    <input type="number" id="answer" placeholder="Your answer" />
+    <input type="number" id="answer" placeholder="Enter answer" />
 
     <br />
     <button onclick="checkAnswer()">Submit</button>
@@ -87,18 +134,18 @@
 
     function checkAnswer() {
       const userAnswer = Number(document.getElementById("answer").value);
+      const feedback = document.getElementById("feedback");
 
       if (userAnswer === correctAnswer) {
-        document.getElementById("feedback").textContent = "Correct!";
-        document.getElementById("feedback").style.color = "green";
+        feedback.textContent = "✔️ Correct!";
+        feedback.style.color = "green";
         score++;
       } else {
-        document.getElementById("feedback").textContent = `Wrong! Answer was ${correctAnswer}`;
-        document.getElementById("feedback").style.color = "red";
+        feedback.textContent = `❌ Wrong! Correct answer: ${correctAnswer}`;
+        feedback.style.color = "red";
       }
 
       document.getElementById("score").textContent = score;
-
       document.getElementById("answer").value = "";
       generateQuestion();
     }
