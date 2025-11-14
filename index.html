@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Game</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: url("background.jpg") no-repeat center center / cover;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .screen {
+    background: #ffffffdd;
+    backdrop-filter: blur(6px);
+    padding: 40px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+
+  h1 {
+    margin: 0 0 20px;
+    font-size: 32px;
+  }
+
+  button {
+    padding: 12px 26px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: #4CAF50;
+    color: white;
+    transition: 0.2s;
+  }
+  button:hover {
+    transform: scale(1.05);
+  }
+
+  #question {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 20px 0;
+  }
+
+  input {
+    padding: 12px 18px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: 3px solid #4CAF50;
+    outline: none;
+    width: 60%;
+    text-align: center;
+  }
+
+  #feedback {
+    margin-top: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    min-height: 30px;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="startScreen" class="screen">
+  <h1>Math Game</h1>
+  <p>Beat the timer and keep your lives!</p>
+  <button onclick="startGame()">Start Game</button>
+  <p style="margin-top:20px">🏆 High Score: <span id="highscoreDisplay">0</span></p>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" class="screen hidden">
+  <h1>Math Game</h1>
+
+  <div style="font-size: 20px; margin-bottom: 10px;">
+    ❤️ Lives: <span id="lives">3</span> &nbsp;&nbsp; ⏳ Time: <span id="timer">10</span>s
+  </div>
+
+  <div id="question">Loading...</div>
+
+  <input id="answer" type="number" placeholder="Your answer"
+         onkeydown="if(event.key === 'Enter') submitAnswer()">
+  <br><br>
+  <button onclick="submitAnswer()">OK</button>
+
+  <div id="feedback"></div>
+
+  <p style="margin-top:15px;">Score: <span id="score">0</span></p>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div id="endScreen" class="screen hidden">
+  <h1>Game Over!</h1>
+  <p>Your Score: <span id="finalScore">0</span></p>
+  <p>🏆 High Score: <span id="finalHighscore">0</span></p>
+  <button onclick="restartGame()">Restart</button>
+</div>
+
+<script>
+  let num1, num2, correctAnswer;
+  let score = 0;
+  let lives = 3;
+  let timeLeft = 10;
+  let timerInterval;
+
+  function getHighscore() {
+    return Number(localStorage.getItem("mathHighscore")) || 0;
+  }
+
+  function updateHighscoreDisplay() {
+    document.getElementById("highscoreDisplay").textContent = getHighscore();
+  }
+
+  updateHighscoreDisplay();
+
+  function startGame() {
+    score = 0;
+    lives = 3;
+    document.getElementById("score").textContent = score;
+    document.getElementById("lives").textContent = lives;
+
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("gameScreen").classList.remove("hidden");
+
+    newQuestion();
+    startTimer();
+    document.getElementById("answer").focus();
+  }
+
+  function startTimer() {
+    timeLeft = 10;
+    document.getElementById("timer").textContent = timeLeft;
+
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timer").textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        loseLife();
+      }
+    }, 1000);
+  }
+
+  function loseLife() {
+    clearInterval(timerInterval);
+    lives--;
+    document.getElementById("lives").textContent = lives;
+
+    if (lives <= 0) {
+      endGame();
+    } else {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = "⏳ Time's up!";
+      feedback.style.color = "red";
+      newQuestion();
+      startTimer();
+    }
+  }
+
+  function newQuestion() {
+    num1 = Math.floor(Math.random() * 12) + 1;
+    num2 = Math.floor(Math.random() * 12) + 1;
+    const ops = ["+", "-", "*"];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+
+    if (op === "+") correctAnswer = num1 + num2;
+    if (op === "-") correctAnswer = num1 - num2;
+    if (op === "*") correctAnswer = num1 * num2;
+
+    document.getElementById("question").textContent = `${num1} ${op} ${num2}`;
+  }
+
+  function submitAnswer() {
+    const input = document.getElementById("answer");
+    const feedback = document.getElementById("feedback");
+    const userAnswer = Number(input.value);
+    input.value = "";
+
+    if (String(userAnswer).trim() === "") return;
+
+    clearInterval(timerInterval);
+
+    if (userAnswer === correctAnswer) {
+      score++;
+      document.getElementById("score").textContent = score;
+      feedback.textContent = "✔ Correct!";
+      feedback.style.color = "green";
+    } else {
+      lives--;
+      document.getElementById("lives").textContent = lives;
+      feedback.textContent = "❌ Wrong!";
+      feedback.style.color = "red";
+
+      if (lives <= 0) {
+        endGame();
+        return;
+      }
+    }
+
+    newQuestion();
+    startTimer();
+  }
+
+  function endGame() {
+    clearInterval(timerInterval);
+
+    document.getElementById("gameScreen").classList.add("hidden");
+    document.getElementById("endScreen").classList.remove("hidden");
+
+    document.getElementById("finalScore").textContent = score;
+
+    if (score > getHighscore()) {
+      localStorage.setItem("mathHighscore", score);
+    }
+
+    document.getElementById("finalHighscore").textContent = getHighscore();
+    updateHighscoreDisplay();
+  }
+
+  function restartGame() {
+    document.getElementById("endScreen").classList.add("hidden");
+    document.getElementById("startScreen").classList.remove("hidden");
+  }
+</script>
+
+</body>
+</html>
